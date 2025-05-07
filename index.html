@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RF TECNOLOGIAS</title>
+  <link rel="stylesheet" href="css/globals.css" />
+</head>
+<body>
+  <header>
+    <h1>RF STORE | TECNOLOGIAS</h1>
+    <nav>
+      <button onclick="showPage('catalog')">Catálogo</button>
+      <button onclick="showPage('cart')">Carrinho <span id="cartCount" class="cart-count">0</span></button>
+      <button onclick="showPage('orders')">Meus Pedidos</button>
+      <button onclick="showPage('admin')">Admin</button>
+    </nav>
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Buscar produtos...">
+      <button onclick="searchProducts()">Buscar</button>
+    </div>
+  </header>
+
+  <main id="catalog" class="page">
+    <h2>Catálogo de Produtos</h2>
+    
+    <div class="filters">
+      <div class="filter-group">
+        <label>Categoria:</label>
+        <select id="categoryFilter" onchange="applyFilters()">
+          <option value="">Todas</option>
+          <option value="perifericos">Periféricos</option>
+          <option value="monitores">Monitores</option>
+          <option value="computadores">Computadores</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Marca:</label>
+        <select id="brandFilter" onchange="applyFilters()">
+          <option value="">Todas</option>
+          <option value="hyperx">HyperX</option>
+          <option value="logitech">Logitech</option>
+          <option value="samsung">Samsung</option>
+          <option value="dell">Dell</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>Preço:</label>
+        <div class="price-inputs">
+          <input type="number" id="minPrice" placeholder="Min" onchange="applyFilters()">
+          <span>até</span>
+          <input type="number" id="maxPrice" placeholder="Max" onchange="applyFilters()">
+        </div>
+      </div>
+      
+      <button onclick="clearFilters()" class="clear-filters">Limpar Filtros</button>
+    </div>
+    
+    <div id="productList" class="product-grid"></div>
+  </main>
+
+  <main id="cart" class="page hidden">
+    <h2>Seu Carrinho</h2>
+    <div id="cartItems"></div>
+    <div id="cartSummary"></div>
+  </main>
+  
+  <main id="checkout" class="page hidden">
+    <h2>Finalizar Compra</h2>
+    
+    <div class="checkout-steps">
+      <div class="step active" id="stepShipping">1. Endereço de Entrega</div>
+      <div class="step" id="stepPayment">2. Pagamento</div>
+      <div class="step" id="stepConfirmation">3. Confirmação</div>
+    </div>
+    
+    <div id="shippingForm" class="checkout-form">
+      <h3>Endereço de Entrega</h3>
+      <div class="form-group">
+        <label for="name">Nome Completo:</label>
+        <input type="text" id="name" required>
+      </div>
+      <div class="form-group">
+        <label for="address">Endereço:</label>
+        <input type="text" id="address" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">Cidade:</label>
+          <input type="text" id="city" required>
+        </div>
+        <div class="form-group">
+          <label for="state">Estado:</label>
+          <input type="text" id="state" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="zipcode">CEP:</label>
+        <input type="text" id="zipcode" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Telefone:</label>
+        <input type="tel" id="phone" required>
+      </div>
+      <button onclick="proceedToPayment()" class="checkout-btn">Continuar para Pagamento</button>
+    </div>
+    
+    <div id="paymentForm" class="checkout-form hidden">
+      <h3>Dados de Pagamento</h3>
+      <div class="payment-methods">
+        <div class="payment-method">
+          <input type="radio" name="paymentMethod" id="creditCard" value="creditCard" checked>
+          <label for="creditCard">Cartão de Crédito</label>
+        </div>
+        <div class="payment-method">
+          <input type="radio" name="paymentMethod" id="pix" value="pix">
+          <label for="pix">PIX</label>
+        </div>
+      </div>
+      
+      <div id="creditCardForm">
+        <div class="form-group">
+          <label for="cardNumber">Número do Cartão:</label>
+          <input type="text" id="cardNumber" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expDate">Data de Validade:</label>
+            <input type="text" id="expDate" placeholder="MM/AA" required>
+          </div>
+          <div class="form-group">
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cardName">Nome no Cartão:</label>
+          <input type="text" id="cardName" required>
+        </div>
+      </div>
+      
+      <div id="pixForm" class="hidden">
+        <p>Ao finalizar, você receberá um QR Code para pagamento via PIX.</p>
+      </div>
+      
+      <button onclick="goToShipping()" class="back-btn">Voltar</button>
+      <button onclick="placeOrder()" class="checkout-btn">Finalizar Pedido</button>
+    </div>
+    
+    <div id="orderConfirmation" class="checkout-form hidden">
+      <h3>Pedido Realizado com Sucesso!</h3>
+      <div id="orderDetails"></div>
+      <button onclick="showPage('catalog')" class="checkout-btn">Continuar Comprando</button>
+    </div>
+  </main>
+
+  <main id="product-details" class="page hidden">
+    <button onclick="showPage('catalog')" class="back-btn">← Voltar ao Catálogo</button>
+    <div id="productDetailContent"></div>
+  </main>
+  
+  <main id="orders" class="page hidden">
+    <h2>Meus Pedidos</h2>
+    <div id="ordersList"></div>
+  </main>
+
+  <main id="admin" class="page hidden">
+    <h2>Painel Administrativo</h2>
+    
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="showAdminTab('dashboard')">Dashboard</button>
+      <button class="tab-btn" onclick="showAdminTab('products')">Produtos</button>
+      <button class="tab-btn" onclick="showAdminTab('orders')">Pedidos</button>
+    </div>
+    
+    <div id="adminDashboard" class="admin-tab">
+      <h3>Dashboard</h3>
+      <div class="dashboard-stats">
+        <div class="stat-card">
+          <h4>Total de Pedidos</h4>
+          <p id="totalOrders">0</p>
+        </div>
+        <div class="stat-card">
+          <h4>Receita Total</h4>
+          <p id="totalRevenue">R$ 0</p>
+        </div>
+        <div class="stat-card">
+          <h4>Pedidos Pendentes</h4>
+          <p id="pendingOrders">0</p>
+        </div>
+      </div>
+      <h4>Produtos Mais Vendidos</h4>
+      <div id="topProducts"></div>
+    </div>
+    
+    <div id="adminProducts" class="admin-tab hidden">
+      <h3>Gerenciar Produtos</h3>
+      <button onclick="showProductForm()" class="admin-btn">Adicionar Novo Produto</button>
+      
+      <div id="productForm" class="admin-form hidden">
+        <h4 id="formTitle">Novo Produto</h4>
+        <input type="hidden" id="productId">
+        <div class="form-group">
+          <label for="productName">Nome:</label>
+          <input type="text" id="productName" required>
+        </div>
+        <div class="form-group">
+          <label for="productPrice">Preço:</label>
+          <input type="number" id="productPrice" required>
+        </div>
+        <div class="form-group">
+          <label for="productCategory">Categoria:</label>
+          <select id="productCategory" required>
+            <option value="perifericos">Periféricos</option>
+            <option value="monitores">Monitores</option>
+            <option value="computadores">Computadores</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="productBrand">Marca:</label>
+          <input type="text" id="productBrand" required>
+        </div>
+        <div class="form-group">
+          <label for="productStock">Estoque:</label>
+          <input type="number" id="productStock" required>
+        </div>
+        <div class="form-group">
+          <label for="productDescription">Descrição:</label>
+          <textarea id="productDescription" rows="4" required></textarea>
+        </div>
+        <button onclick="cancelProductForm()" class="cancel-btn">Cancelar</button>
+        <button onclick="saveProduct()" class="save-btn">Salvar</button>
+      </div>
+      
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Categoria</th>
+            <th>Estoque</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="productsTable"></tbody>
+      </table>
+    </div>
+    
+    <div id="adminOrders" class="admin-tab hidden">
+      <h3>Gerenciar Pedidos</h3>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Data</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTable"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="js/data.js"></script>
+</body>
+</html>
